@@ -16,8 +16,9 @@
  */
 CKEDITOR.scriptLoader = (function() {
 	var uniqueScripts = {},
-		waitingList = {};
-
+		waitingList = {},
+		require = CKEDITOR.amd.require;
+		
 	return {
 		/**
 		 * Loads one or more external script checking if not already loaded
@@ -73,6 +74,18 @@ CKEDITOR.scriptLoader = (function() {
 
 			if ( scriptCount === 0 ) {
 				doCallback( true );
+				return;
+			}
+
+			if ( require ) {
+				var completeCallback = function ()
+				{
+					showBusy && CKEDITOR.document.getDocumentElement().removeStyle( 'cursor' );
+					doCallback(true);
+				};
+
+				completed = [].concat(scriptUrl);
+				require(scriptUrl, completeCallback);
 				return;
 			}
 
